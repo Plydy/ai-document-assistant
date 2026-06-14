@@ -9,7 +9,7 @@ from app.schemas.user_schema import UserCreate
 from app.schemas.user_schema import UserLogin
 from app.utils.jwt_handler import create_access_token
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -33,16 +33,38 @@ def register(user:UserCreate, db:Session = Depends(get_db)):
     }
 @router.post("/login")
 def login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
+        user: UserLogin,
         db:Session = Depends(get_db)):
 
-    db_user = db.query(User).filter(User.username == form_data.username).first()
+    db_user = db.query(User).filter(User.email == user.email).first()
+
+    if not db_user:
+        return {"error": "Invalid email"}
+
+    if not pwd_context.verify(user.password, db_user.password):
+        return {"error": "Invalid password"}
+    access_token = create_access_token(
+        data={"sub": db_user.email}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+@router.post("/token")
+def token(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        db:Session = Depends(get_db)
+):
+    db_user = db.query(User).filter(User.email == form_data.username).first()
 
     if not db_user:
         return {"error": "Invalid email"}
 
     if not pwd_context.verify(form_data.password, db_user.password):
         return {"error": "Invalid password"}
+
     access_token = create_access_token(
         data={"sub": db_user.email}
     )

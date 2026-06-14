@@ -14,7 +14,7 @@ from app.config import SECRET_KEY, ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/login",
+    tokenUrl="/auth/token",
 )
 
 def create_access_token(data: dict):
@@ -33,6 +33,7 @@ def get_current_user(
         token: str = Depends(oauth2_scheme),
         db: Session = Depends(get_db)
 ):
+
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",

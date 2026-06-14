@@ -2,6 +2,7 @@ from fastapi import  APIRouter, Depends
 from pydantic import BaseModel
 from pyexpat.errors import messages
 from  sqlalchemy.orm import Session
+from datetime import date
 
 from app.services.ai_service import analyze_text
 from app.database.db import SessionLocal, get_db
@@ -21,6 +22,13 @@ def analyze(
 ):
 
     if not current_user.is_admin:
+
+        today = date.today()
+
+        if current_user.last_reset_date != today:
+            current_user.daily_requests = 0
+            current_user.last_reset_date = today
+            db.commit()
 
         if current_user.daily_requests >= 5:
             return {"error": "Daily limit reached"}

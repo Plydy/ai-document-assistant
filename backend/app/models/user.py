@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Date
 from app.database.db import Base
 
 class User(Base):
@@ -11,3 +11,4 @@ class User(Base):
 
     is_admin = Column(Boolean, default=False)
     daily_requests = Column(Integer, default=0)
+    last_reset_date = Column(Date)

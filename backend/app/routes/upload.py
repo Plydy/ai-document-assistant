@@ -10,6 +10,7 @@ from PyPDF2 import PdfReader
 from PIL import Image
 from pdf2image import convert_from_path
 from sqlalchemy.orm import Session
+from datetime import date
 
 from app.services.ai_service import analyze_text
 from app.database.db import get_db
@@ -128,6 +129,22 @@ async def upload_file(
 
     elif file.filename.endswith(".png", ".jpg", ".jpeg"):
         content = read_image(file_path)
+
+    if not current_user.is_admin:
+
+        today = date.today()
+
+        if current_user.last_reset_date != today:
+            current_user.daily_requests = 0
+            current_user.last_reset_date = today
+            db.commit()
+
+        if current_user.daily_requests >= 5:
+            return {"error": "Daily limit reached"}
+
+        current_user.daily_requests += 1
+
+        db.commit()
 
     summary = analyze_text(content)
 
