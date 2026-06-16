@@ -2,10 +2,11 @@ import os
 import shutil
 import pdfplumber
 import pytesseract
+import json
 pytesseract.pytesseract.tesseract_cmd = r"D:\Tesseract-OCR\tesseract.exe"
 
 from fastapi import  APIRouter, UploadFile, File, Depends
-from docx import Document
+from docx import Document as DocxDocument
 from PyPDF2 import PdfReader
 from PIL import Image
 from pdf2image import convert_from_path
@@ -37,7 +38,7 @@ def read_txt(path):
     return "Could not read file"
 
 def read_docx(path):
-    doc = Document(path)
+    doc = DocxDocument(path)
 
     full_text = []
     #zwykly tekst
@@ -151,7 +152,7 @@ async def upload_file(
     new_document = Document(
         filename=file.filename,
         content=content,
-        summary=summary,
+        summary=json.dumps(summary),
         user_id=current_user.id
     )
 

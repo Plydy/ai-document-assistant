@@ -9,3 +9,9 @@ body{font-family:system-ui,Arial;margin:0;background:var(--bg);color:#111}
 .info{color:#065f46}
 .result{white-space:pre-wrap;background:#fff;padding:12px;border-radius:6px}
 .btn-plain{background:none;border:0;color:var(--accent);cursor:pointer}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.spinner {animation:spin 1s linear infinite; }

@@ -1,4 +1,6 @@
 import React from 'react'
+import { useState } from 'react'
+import { themes } from "./theme";
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -13,6 +15,8 @@ function RequireAuth({ children }) {
 }
 
 export default function App() {
+    const [themeName, setThemeName] = useState('dark')
+    const theme = themes[themeName]
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

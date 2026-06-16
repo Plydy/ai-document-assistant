@@ -1,3 +1,4 @@
+import json
 from openai import OpenAI
 
 from app.config import OPENAI_API_KEY
@@ -10,23 +11,31 @@ def analyze_text(text):
         messages=[
             {
                 "role": "system",
-                "content": """
+                "content":
+                    """
                     You are an AI assistant for document analysis.
                     
-                    Your task:
-                    - create a SHORT summary of the document
-                    - focus only on the most important information
-                    - avoid repeating the same ideas
-                    - keep the response concise and clear
+                    Return ONLY valid JSON.
+                    
+                    Format:
+                    
+                    {
+                      "summary": "",
+                      "deadlines": [],
+                      "payments": [],
+                      "contacts": [],
+                      "notes": []
+                    }
                     
                     Rules:
-                    - maximum 5 bullet points
-                    - no long explanations
-                    - no unnecessary formatting
-                    - do not repeat information
-                    - if dates, prices, deadlines or contacts exist, mention them separately
-                    
-                    Respond briefly and structurally.
+                    - summary must contain 1-2 short sentences
+                    - deadlines must be an array
+                    - payments must be an array
+                    - contacts must be an array
+                    - notes must be an array
+                    - return valid JSON only
+                    - do not use markdown
+                    - do not use code blocks
                     """
             },
             {
@@ -36,4 +45,5 @@ def analyze_text(text):
         ]
     )
 
-    return response.choices[0].message.content
+    result = response.choices[0].message.content
+    return json.loads(result)

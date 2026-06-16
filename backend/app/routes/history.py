@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
@@ -20,3 +20,36 @@ def get_history(
         .all()
     )
     return documents
+
+@router.delete("/history/{document_id}")
+def delete_history(
+        document_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    document = (
+        db.query(Document).filter(
+            Document.id == document_id, Document.user_id == current_user.id
+        )
+        .first()
+    )
+
+    db.delete(document)
+    db.commit()
+
+    return {"message": "Document deleted"}
+
+@router.delete("/history")
+def delete_all_history(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    (
+        db.query(Document)
+        .filter(Document.user_id == current_user.id)
+        .delete()
+    )
+
+    db.commit()
+
+    return {"message": "History cleared"}
